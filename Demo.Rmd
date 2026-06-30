@@ -260,21 +260,17 @@ print(CATE_infr)
 ```
 
 
-# 5. Dose Response Curve Example with a Simulated Dataset
-## 5.1 Fit HAL
-## 5.2 Dose response curve estimation
-## 5.3 Confidence intervals
-
-
-# 6. Reproducing the manuscript figures
+# 5. Reproducing the manuscript figures
 
 The `figures/` folder of this repository contains stand-alone R scripts that
 reproduce the two simulation figures in the accompanying manuscript. They are
-provided for transparency and reproducibility, and build on prior work that is
-credited in `figures/README.md`. Each script is run from inside the `figures/`
-folder and writes its own `.png` and `.eps` output there.
+provided for transparency and reproducibility, and build on prior work
+(Benkeser, HAL simulation code; Phillips, Coyle, and Hejazi, *hal9001*; Cai and
+van der Laan, 2020) that is credited in `figures/README.md`. Each script is run
+from inside the `figures/` folder and writes its own `.png` and `.eps` output
+there.
 
-## 6.1 Figure 1 — HAL at several sectional variation norms
+## 5.1 Figure 1 — HAL at several sectional variation norms
 
 `fig1_hal.R` fits HAL (using zero-order indicator basis functions and `glmnet`)
 to data generated from a smooth, multi-frequency target function,
@@ -293,7 +289,7 @@ Rscript fig1_hal.R     # writes fig1_hal.png and fig1_hal.eps
 This script depends only on `glmnet` and base R (plus `hal_helpers.R` and
 `hal_style.R`, which are sourced automatically).
 
-## 6.2 Figure 2 — bootstrap CI width and the lambda plateau
+## 5.2 Figure 2 — bootstrap CI width and the lambda plateau
 
 `fig2_density_width.R` reproduces the confidence-interval-width plot used to
 choose the HAL penalty $\lambda$ for nonparametric bootstrap inference. For a

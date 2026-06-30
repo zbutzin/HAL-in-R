@@ -392,12 +392,12 @@ hal_fit &lt;- fit_hal(X = X, Y = Y)
 
 hal_fit$times</code></pre>
 <pre><code>##                   user.self sys.self elapsed user.child sys.child
-## enumerate_basis       0.045    0.001   0.046          0         0
-## design_matrix         0.523    0.010   0.534          0         0
+## enumerate_basis       0.047    0.001   0.048          0         0
+## design_matrix         0.541    0.012   0.553          0         0
 ## reduce_basis          0.000    0.000   0.000          0         0
 ## remove_duplicates     0.000    0.000   0.000          0         0
-## lasso                70.159    0.659  70.988          0         0
-## total                70.727    0.670  71.568          0         0</code></pre>
+## lasso                72.300    0.713  76.482          0         0
+## total                72.888    0.726  77.083          0         0</code></pre>
 <p><strong>Specifying smoothness of the HAL model</strong><br />
 We can use the <code>smoothness_orders</code> argument to enforce smoothness on the functional form of the HAL fit.<br />
 * <code>smoothness_orders = 0</code> provides a segmented constant approximation (via zero-order basis functions) that accommodates abrupt changes within the function. This is valuable when desiring to avoid assuming any level of smoothness or continuity in the underlying function.<br />
@@ -555,30 +555,18 @@ print(CATE_infr)</code></pre>
 ## [1] -0.5043403  0.8252673</code></pre>
 </div>
 </div>
-<div id="dose-response-curve-example-with-a-simulated-dataset" class="section level1">
-<h1>5. Dose Response Curve Example with a Simulated Dataset</h1>
-<div id="fit-hal-1" class="section level2">
-<h2>5.1 Fit HAL</h2>
-</div>
-<div id="dose-response-curve-estimation" class="section level2">
-<h2>5.2 Dose response curve estimation</h2>
-</div>
-<div id="confidence-intervals" class="section level2">
-<h2>5.3 Confidence intervals</h2>
-</div>
-</div>
 <div id="reproducing-the-manuscript-figures" class="section level1">
-<h1>6. Reproducing the manuscript figures</h1>
-<p>The <code>figures/</code> folder of this repository contains stand-alone R scripts that reproduce the two simulation figures in the accompanying manuscript. They are provided for transparency and reproducibility, and build on prior work that is credited in <code>figures/README.md</code>. Each script is run from inside the <code>figures/</code> folder and writes its own <code>.png</code> and <code>.eps</code> output there.</p>
+<h1>5. Reproducing the manuscript figures</h1>
+<p>The <code>figures/</code> folder of this repository contains stand-alone R scripts that reproduce the two simulation figures in the accompanying manuscript. They are provided for transparency and reproducibility, and build on prior work (Benkeser, HAL simulation code; Phillips, Coyle, and Hejazi, <em>hal9001</em>; Cai and van der Laan, 2020) that is credited in <code>figures/README.md</code>. Each script is run from inside the <code>figures/</code> folder and writes its own <code>.png</code> and <code>.eps</code> output there.</p>
 <div id="figure-1-hal-at-several-sectional-variation-norms" class="section level2">
-<h2>6.1 Figure 1 — HAL at several sectional variation norms</h2>
+<h2>5.1 Figure 1 — HAL at several sectional variation norms</h2>
 <p><code>fig1_hal.R</code> fits HAL (using zero-order indicator basis functions and <code>glmnet</code>) to data generated from a smooth, multi-frequency target function, <span class="math inline">\(Y = \sin(1.2 X) + 0.7\sin(2.7 X) + \varepsilon\)</span>. It then draws three fits at different <strong>sectional variation norms</strong> — an over-regularized (low-norm) fit, the cross-validation–selected fit, and an under-regularized (high-norm) fit — together with the true function and the data. The figure illustrates how the variation-norm penalty controls the bias–variance trade-off: too small a norm oversmooths, too large a norm overfits, and cross-validation lands in between.</p>
 <pre class="sh"><code># from the figures/ folder:
 Rscript fig1_hal.R     # writes fig1_hal.png and fig1_hal.eps</code></pre>
 <p>This script depends only on <code>glmnet</code> and base R (plus <code>hal_helpers.R</code> and <code>hal_style.R</code>, which are sourced automatically).</p>
 </div>
 <div id="figure-2-bootstrap-ci-width-and-the-lambda-plateau" class="section level2">
-<h2>6.2 Figure 2 — bootstrap CI width and the lambda plateau</h2>
+<h2>5.2 Figure 2 — bootstrap CI width and the lambda plateau</h2>
 <p><code>fig2_density_width.R</code> reproduces the confidence-interval-width plot used to choose the HAL penalty <span class="math inline">\(\lambda\)</span> for nonparametric bootstrap inference. For a simulated multimodal density, it computes the Wald interval width across a grid of <span class="math inline">\(\lambda\)</span> values and plots width against <span class="math inline">\(\lambda\)</span> (log scale). As <span class="math inline">\(\lambda\)</span> decreases below the cross-validation choice (i.e. as the fit is undersmoothed), the width increases and then <strong>stabilizes on a plateau</strong>; that plateau marks the <span class="math inline">\(\lambda\)</span> value used for the final bootstrap interval.</p>
 <pre class="sh"><code># from the figures/ folder:
 Rscript fig2_density_width.R   # writes fig2_density_width.png/.eps</code></pre>
