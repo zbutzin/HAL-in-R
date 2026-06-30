@@ -1,9 +1,9 @@
 ## ============================================================
-## Figure 2 -- Wald confidence-interval WIDTH as a function of the HAL L1
+## Figure 2: Wald confidence-interval WIDTH as a function of the HAL L1
 ## penalty (lambda), for the average-squared-density parameter.
 ## Shows the width "plateau" used to select lambda for the nonparametric
 ## bootstrap. (The derivative panel of the original two-panel figure is
-## intentionally omitted -- we keep only the width curve.)
+## intentionally omitted; we keep only the width curve.)
 ##
 ## Run from this folder:  Rscript fig2_density_width.R
 ## Outputs: fig2_density_width.png/.eps and fig2_density_width.rds

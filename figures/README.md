@@ -9,8 +9,8 @@ prior work, credited below.
 
 | File | Purpose |
 |------|---------|
-| `fig1_hal.R` | **Figure 1** — HAL fitting a complex function at several sectional variation norms (over-regularized / CV-chosen / under-regularized). |
-| `fig2_density_width.R` | **Figure 2** — Wald CI width vs. the HAL L1 penalty (lambda) for the average-squared-density parameter; shows the width "plateau". |
+| `fig1_hal.R` | **Figure 1**: HAL fitting a complex function at several sectional variation norms (over-regularized / CV-chosen / under-regularized). |
+| `fig2_density_width.R` | **Figure 2**: Wald CI width vs. the HAL L1 penalty (lambda) for the average-squared-density parameter; shows the width "plateau". |
 | `hal_helpers.R` | Lightweight glmnet-based HAL helpers used by `fig1_hal.R`. |
 | `hal_style.R` | Shared plotting style (palette, line types, axes) so all figures match. |
 
@@ -24,7 +24,7 @@ Rscript fig2_density_width.R # writes fig2_density_width.png / .eps / .rds
 ```
 
 `fig1_hal.R` needs only `glmnet` (and base R). `fig2_density_width.R` needs the
-`TMLEbootstrap` package — see the dependency note below.
+`TMLEbootstrap` package. See the dependency note below.
 
 ## Dependency note for Figure 2
 

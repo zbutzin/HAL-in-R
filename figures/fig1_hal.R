@@ -1,5 +1,5 @@
 ## ============================================================
-## Figure 1 -- HAL fits a complex function at several sectional
+## Figure 1: HAL fits a complex function at several sectional
 ## variation norms (over-regularized / CV-chosen / under-regularized).
 ##
 ## Run from this folder:  Rscript fig1_hal.R

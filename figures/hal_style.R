@@ -3,7 +3,7 @@
 ## Source this in every figure script for a consistent look.
 ##
 ##   keys:  truth | lo (over-regularized) | cv (CV-chosen) | hi (under-regularized)
-##   design: grayscale-safe -- each line differs in BOTH color and line type.
+##   design: grayscale-safe, so each line differs in BOTH color and line type.
 ## ============================================================
 
 HAL_COL <- c(truth = "grey35", lo = "#d95f02", cv = "#2c7fb8", hi = "#1b9e77")

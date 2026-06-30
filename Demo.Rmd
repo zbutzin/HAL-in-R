@@ -270,16 +270,17 @@ van der Laan, 2020) that is credited in `figures/README.md`. Each script is run
 from inside the `figures/` folder and writes its own `.png` and `.eps` output
 there.
 
-## 5.1 Figure 1 — HAL at several sectional variation norms
+## Figure 1. HAL can fit complex functions.
 
 `fig1_hal.R` fits HAL (using zero-order indicator basis functions and `glmnet`)
 to data generated from a smooth, multi-frequency target function,
 $Y = \sin(1.2 X) + 0.7\sin(2.7 X) + \varepsilon$. It then draws three fits at
-different **sectional variation norms** — an over-regularized (low-norm) fit,
-the cross-validation–selected fit, and an under-regularized (high-norm) fit —
-together with the true function and the data. The figure illustrates how the
-variation-norm penalty controls the bias–variance trade-off: too small a norm
-oversmooths, too large a norm overfits, and cross-validation lands in between.
+different sectional variation norms: an over-regularized (low-norm) fit, the
+cross-validation-selected fit, and an under-regularized (high-norm) fit,
+together with the true function and the data. The figure shows how the
+variation-norm penalty controls the bias-variance trade-off. A norm that is too
+small oversmooths the data, a norm that is too large overfits it, and
+cross-validation selects a norm in between.
 
 ```sh
 # from the figures/ folder:
@@ -289,14 +290,14 @@ Rscript fig1_hal.R     # writes fig1_hal.png and fig1_hal.eps
 This script depends only on `glmnet` and base R (plus `hal_helpers.R` and
 `hal_style.R`, which are sourced automatically).
 
-## 5.2 Figure 2 — bootstrap CI width and the lambda plateau
+## Figure 2. Optimizing bias-variance tradeoff.
 
 `fig2_density_width.R` reproduces the confidence-interval-width plot used to
 choose the HAL penalty $\lambda$ for nonparametric bootstrap inference. For a
 simulated multimodal density, it computes the Wald interval width across a grid
 of $\lambda$ values and plots width against $\lambda$ (log scale). As $\lambda$
 decreases below the cross-validation choice (i.e. as the fit is undersmoothed),
-the width increases and then **stabilizes on a plateau**; that plateau marks the
+the width increases and then stabilizes on a plateau. That plateau marks the
 $\lambda$ value used for the final bootstrap interval.
 
 ```sh
