@@ -1,0 +1,4 @@
+# Generated figure outputs (reproducible by running the scripts)
+*.png
+*.eps
+*.rds
