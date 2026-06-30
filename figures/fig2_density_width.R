@@ -36,7 +36,7 @@ suppressMessages(library(ggplot2))
 source("hal_style.R")   # shared palette (HAL_COL)
 
 ## ---- settings ----
-N_SIM <- 500; N_MODE <- 2; N_BOOTSTRAP <- 200
+N_SIM <- 2000; N_MODE <- 3; N_BOOTSTRAP <- 200   # 3-modal truth at n=2000 (distinct plateau)
 N_LAMBDA <- 20; LAMBDA_MAX <- -1; LAMBDA_MIN <- -7   # wide enough to show the plateau
 BIN_WIDTH <- 0.5; EPS_STEP <- 0.01; SEED <- 123
 
