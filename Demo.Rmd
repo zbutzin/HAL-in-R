@@ -28,7 +28,7 @@ Based on the *hal9001* R package by Rachael Phillips, Jeremy Coyle, and Nima Hej
 # Objectives
 By the end of this demo, you will be able to:  
 
-* Fit a HAL with CV-selected penalty and a undermoothed HAL.  
+* Fit a HAL with CV-selected penalty and an undersmoothed HAL.  
 * Interpret the results from HAL-fit.   
 * Estimate the target parameter with HAL as a working model and obtain delta method based confidence intervals.  
   + Average treatment effects.  
@@ -36,12 +36,12 @@ By the end of this demo, you will be able to:
   + Dose response curves.  
 
 # 1. Introduction 
-The Highly Adaptive Lasso (HAL) is a non-parametric machine learning algorithm that "creates efficient estimators of realistic statistical models of pathwise differential parameters. HAL creates efficient estimators of realistic statistical models of pathwise differential parameters. Furthermore, these models provide asymptotically normal estimators for non-pathwise-differential parameters, which can enable investigators to use HAL-based substitution estimators and the delta method rather than rely on parametric models." [**Highly Adaptive LASSO: Machine Learning That Provides Valid Nonparametric Inference in Realistic Models**] 
+The Highly Adaptive Lasso (HAL) is a non-parametric machine learning algorithm that "creates efficient estimators of realistic statistical models of pathwise differentiable parameters. Furthermore, these models provide asymptotically normal estimators for non-pathwise-differentiable parameters, which can enable investigators to use HAL-based substitution estimators and the delta method rather than rely on parametric models." [**Highly Adaptive LASSO: Machine Learning That Provides Valid Nonparametric Inference in Realistic Models**] 
 
-This github page is to provide example code for straightforward uses of HAL. 
+This github page is to provide example code for straightforward uses of HAL. The R scripts used to generate the figures in the accompanying manuscript are provided in the `figures/` folder of this repository (see `figures/README.md`), for transparency and reproducibility.
 
 # 2. How to Fit HAL
-In this section, the functions of fitting HAL is demonstrated. 
+In this section, we demonstrate the functions for fitting HAL.
 
 **Fitting any HAL consists of the following 2 steps**:  
 1. Define the outcome vector, Y, and the covariates matrix X.  
@@ -116,7 +116,7 @@ source('functions_UHAL_deltaCI.R')
 
 ## 2.1 Prepare data
 
-First, identify the outcome variable and save it as a numeric vector. In this example, we are interested in weight-for-height z-score (`whz`) as the outcome, which is continuouts. 
+First, identify the outcome variable and save it as a numeric vector. In this example, we are interested in weight-for-height z-score (`whz`) as the outcome, which is continuous. 
 ```{r}
 Y <- as.numeric(washb_data_demo$whz)
 head(Y)
@@ -139,7 +139,7 @@ head(X)
 ## 2.2 Fit HAL
 ### 2.2.1 HAL (CV-HAL) 
 
-To fit the CV-HAL using the prepared X and Y above, we call the `fit_hal`' function from the `fit_hal` package. The following provided  employs the default configuration to train HAL. This involves utilizing 10-fold cross-validation to select lambda, setting `max_degree` to 1, `smoothness_orders` to 1, `family` to "guassian", and incorporating additional arguments like `num_knots`. You can look for `fit_hal` in the help pane in Rstudio or go to *https://rdrr.io/cran/hal9001/man/fit_hal.html* for more information. To have reproducible results, we will set a random number generator.
+To fit the CV-HAL using the prepared X and Y above, we call the `fit_hal` function from the `hal9001` package. The following code employs the default configuration to train HAL. This involves utilizing 10-fold cross-validation to select lambda, setting `max_degree` to 1, `smoothness_orders` to 1, `family` to "gaussian", and incorporating additional arguments like `num_knots`. You can look for `fit_hal` in the help pane in RStudio or go to *https://rdrr.io/cran/hal9001/man/fit_hal.html* for more information. To have reproducible results, we will set a random number generator.
 ```{r}
 set.seed(123)
 
@@ -149,7 +149,7 @@ hal_fit$times
 ```
 
 **Specifying smoothness of the HAL model**    
-We can use `smoothness_orders` arguement to enforce smoothness on the functional form of the HAL fit.   
+We can use the `smoothness_orders` argument to enforce smoothness on the functional form of the HAL fit.   
 * `smoothness_orders = 0` provides a segmented constant approximation (via zero-order basis functions) that accommodates abrupt changes within the function. This is valuable when desiring to avoid assuming any level of smoothness or continuity in the underlying function.  
 * `smoothness_orders = 1` gives a piece-wise linear fit (via first-order basis functions), which is continuous and mostly differentiable.  
 * `smoothness_orders = k` gives a segmented polynomial fit (via k-order basis functions). 
@@ -159,18 +159,18 @@ Mathematically, HAL fitting will find the optimal fit under the constraint that 
 When not sure about `smoothness_orders`, we suggest use the default value 1. 
 ```{r, eval = FALSE}
 hal_fit_zeroorder <- fit_hal(X = X, Y = Y, smoothness_orders = 0)
-hal_fit_firstorder <- fit_hal(X = X, Y = Y) d
+hal_fit_firstorder <- fit_hal(X = X, Y = Y)
 ```
 
 
 ### 2.2.2 Undersmoothed HAL
 Three steps to fit a undersmoothed HAL:  
-1. We need to fit a cv-hal with the arguement `return_x_basis = TRUE` by calling the `fit_hal` function.  
+1. We need to fit a cv-hal with the argument `return_x_basis = TRUE` by calling the `fit_hal` function.  
 2. We pass in `X`, `Y`, `hal_cv` fit object, and `family` to the `undersmooth_hal` function (from the *'functions_UHAL_deltaCI.R'* file) to get the undersmoothed lambda.   
 3. Then we fit the undersmoothed HAL by calling `fit_hal` function again with:  
   - `lambda` to be the undersmoothed lambda,    
   - `fit_control = list(cv_select = FALSE)` indicating no need to select a lambda through cross validation,   
-  - and other arguements the same as the initial fitting of cv-hal.   
+  - and other arguments the same as the initial fitting of cv-hal.   
 
 ```{r}
 set.seed(123)
@@ -189,7 +189,7 @@ hal_u_fit <- fit_hal(X = X, Y = Y,
 
 There can be situations that there is no need for undersmoothing or we cannot undersmooth further. We can check this by whether `lambda_init` and `lambda_under` in the results of calling `undersmooth_hal` function are the same. If this is the case, we can just proceed with `hal_cv`. 
 
-## 2.3 Sumarizing HAL fits
+## 2.3 Summarizing HAL fits
 
 The summary of a HAL fit object will have the table of non-zero coefficients and the corresponding basis functions. The lambda used will also be stored here.
 
@@ -200,10 +200,10 @@ print(hal_fit_summary)
 
 
 
-# 3. Obtainning Predictions 
+# 3. Obtaining Predictions
 ## 3.1 Predictions
 
-We will use the previourly obtained fitted undersmoothed HAL object, `hal_u_fit`, to get the predicted whz value for each individual within the dataset.
+We will use the previously obtained fitted undersmoothed HAL object, `hal_u_fit`, to get the predicted whz value for each individual within the dataset.
 ```{r}
 hal_u_preds <- predict(hal_u_fit, new_data = X)
 head(hal_u_preds)
@@ -211,7 +211,7 @@ head(hal_u_preds)
 
 ### 3.2 Counterfactual predictions
 Counterfactual predictions are predicted values under an intervention of interest.   
-To continue the example on the WASH Benefits Bangladesh study and using the same subset of the data, suppose we would like to obtain predictions for every subject’s weight-for-height z-score (`whz`) outcome under an treatment (`tr`) intervention that sets it to the WSH interventions. To do so, we need to do two simple steps: 1) create a copy of the `X` matrix and intervene on `tr` in the copied matrix; 2) obtain prediction using the intervened matrix. 
+To continue the example on the WASH Benefits Bangladesh study and using the same subset of the data, suppose we would like to obtain predictions for every subject’s weight-for-height z-score (`whz`) outcome under a treatment (`tr`) intervention that sets it to the WSH interventions. To do so, we need to do two simple steps: 1) create a copy of the `X` matrix and intervene on `tr` in the copied matrix; 2) obtain prediction using the intervened matrix. 
 
 ```{r}
 # 1. copy data & intervene
@@ -225,11 +225,11 @@ counterfactual_pred <- predict(hal_u_fit, new_data = X_intervene)
 head(counterfactual_pred)
 ``` 
 
-# 4. Obtainning Estimates and Inferences 
+# 4. Obtaining Estimates and Inferences
 
 ## 4.1 Counterfactual Outcome Mean
 Counterfactual outcome mean is the average outcome that all individuals in the target population would have experienced if they had received a particular treatment or exposure value. 
-Suppose we are interested in the average weight-for-height z-score (`whz`) if all of the people in Bangladesh had the WSH interventions (i.e. the conterfactual outcome mean): $\mathbb{E}_P(Y_1)$.
+Suppose we are interested in the average weight-for-height z-score (`whz`) if all of the people in Bangladesh had the WSH interventions (i.e. the counterfactual outcome mean): $\mathbb{E}_P(Y_1)$.
 
 ```{r}
 CMean_infr = CounterfactualMean_inferece(X, Y, treatment = "tr", treatment_level = 1, hal_fit = hal_u_fit, family = "gaussian")
@@ -248,7 +248,7 @@ ATE_infr = ATE_inferece(X, Y, treatment = "tr", hal_fit = hal_u_fit, family = "g
 print(ATE_infr)
 ```
 
-## 4.2 CATE
+## 4.3 CATE
 The conditional average treatment effect (CATE) is the average treatment effect on an outcome variable for a specific subgroup or conditional population defined by a set of covariates or characteristics.
 
 Suppose we are interested in the causal effect of weight-for-height z-score (`whz`) due to WSH interventions among males (i.e. the conditional average treatment effect among males): $$\Psi(P_{male}) = \mathbb{E}_{P_{male}}(Y_1) - \mathbb{E}_{P_{male}}(Y_0)$$.
@@ -260,8 +260,8 @@ print(CATE_infr)
 ```
 
 
-# 5. Dore Response Curve Example with a Simulated Dataset
+# 5. Dose Response Curve Example with a Simulated Dataset
 ## 5.1 Fit HAL
-## 5.2 Dose response curve estimatation
+## 5.2 Dose response curve estimation
 ## 5.3 Confidence intervals
 
