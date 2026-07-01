@@ -16,20 +16,18 @@
 ##   - Package edits / fork by Yunwen (Wendy) Ji. Restyled here.
 ##
 ## DEPENDENCY NOTE (important):
-##   This script requires the TMLEbootstrap package. As written for current
-##   hal9001 (>= 0.4.0), TMLEbootstrap needs a small fix in densityHAL.R:
-##   observation `weights` must be passed inside `fit_control`, not as a
-##   top-level argument to hal9001::fit_hal(). Use a fork that includes this
-##   fix. See figures/README.md for details.
+##   This script requires the TMLEbootstrap package. With current hal9001
+##   (>= 0.4.0), upstream TMLEbootstrap needs a small fix in densityHAL.R
+##   (observation weights passed inside fit_control). Install the fixed fork:
+##     remotes::install_github("zbutzin/TMLEbootstrap",
+##                             ref = "fix-hal9001-weights-and-cleanup")
+##   See figures/README.md for details.
 ## ============================================================
 
-## ---- locate / load TMLEbootstrap ----
-## Option A: a locally checked-out (fixed) copy via devtools:
-##   PKGDIR <- "/path/to/TMLEbootstrap"; devtools::load_all(PKGDIR)
-## Option B: an installed (fixed) copy:
-##   library(TMLEbootstrap)
+## ---- load TMLEbootstrap (see DEPENDENCY NOTE above to install) ----
 if (!requireNamespace("TMLEbootstrap", quietly = TRUE)) {
-  stop("TMLEbootstrap not installed. See the DEPENDENCY NOTE / figures/README.md.")
+  stop("TMLEbootstrap not installed. Install the fixed fork:\n",
+       "  remotes::install_github(\"zbutzin/TMLEbootstrap\", ref = \"fix-hal9001-weights-and-cleanup\")")
 }
 suppressMessages(library(TMLEbootstrap))
 suppressMessages(library(ggplot2))

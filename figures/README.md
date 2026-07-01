@@ -29,12 +29,16 @@ Rscript fig2_density_width.R # writes fig2_density_width.png / .eps / .rds
 ## Dependency note for Figure 2
 
 `fig2_density_width.R` uses the `TMLEbootstrap` package. With current
-`hal9001` (>= 0.4.0), `TMLEbootstrap` requires a small fix in
-`R/densityHAL.R`: observation `weights` must be passed **inside**
-`fit_control`, not as a top-level argument to `hal9001::fit_hal()`. Install a
-fork of `TMLEbootstrap` that includes this fix, then either
-`library(TMLEbootstrap)` or load a local checkout with
-`devtools::load_all("/path/to/TMLEbootstrap")` at the top of the script.
+`hal9001` (>= 0.4.0), the upstream `TMLEbootstrap` needs a small fix in
+`R/densityHAL.R` (observation `weights` must be passed **inside** `fit_control`,
+not as a top-level argument to `hal9001::fit_hal()`). A fork with this fix is
+available, so you can install it directly:
+
+```r
+remotes::install_github("zbutzin/TMLEbootstrap", ref = "fix-hal9001-weights-and-cleanup")
+```
+
+Then run `fig2_density_width.R` as-is (it calls `library(TMLEbootstrap)`).
 
 ## Credits / prior work
 
