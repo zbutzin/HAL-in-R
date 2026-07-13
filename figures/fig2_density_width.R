@@ -22,6 +22,14 @@
 ##     remotes::install_github("zbutzin/TMLEbootstrap",
 ##                             ref = "fix-hal9001-weights-and-cleanup")
 ##   See figures/README.md for details.
+##
+## NOTE ON THE LAMBDA GRID:
+##   The Wald width here is influence-curve based (TMLEbootstrap computes it as
+##   diff(pointTMLE$CI)); it is deterministic given lambda, with no Monte Carlo
+##   noise. So the grid controls how well the curve is RESOLVED, not how noisy it
+##   is. The earlier 20-point grid made the overshoot just left of the plateau
+##   look like a single stray point; on the denser grid below it resolves into
+##   the smooth bump it actually is.
 ## ============================================================
 
 ## ---- load TMLEbootstrap (see DEPENDENCY NOTE above to install) ----
@@ -31,33 +39,91 @@ if (!requireNamespace("TMLEbootstrap", quietly = TRUE)) {
 }
 suppressMessages(library(TMLEbootstrap))
 suppressMessages(library(ggplot2))
-source("hal_style.R")   # shared palette (HAL_COL)
+source("hal_style.R")   # shared palette (HAL_COL, HAL_ACCENT) + geometry + theme
 
 ## ---- settings ----
-N_SIM <- 2000; N_MODE <- 3; N_BOOTSTRAP <- 200   # 3-modal truth at n=2000 (distinct plateau)
-N_LAMBDA <- 20; LAMBDA_MAX <- -1; LAMBDA_MIN <- -7   # wide enough to show the plateau
+N_SIM <- 2000; N_MODE <- 3                      # 3-modal truth at n = 2000
+N_LAMBDA <- 50; LAMBDA_MAX <- -1; LAMBDA_MIN <- -8   # denser + wider than before
 BIN_WIDTH <- 0.5; EPS_STEP <- 0.01; SEED <- 123
 
 set.seed(SEED)
 data_out <- simulate_density_data(n_sim = N_SIM, n_mode = N_MODE)
 tuner <- avgDensityTuneHyperparam$new(
-  data = data_out, bin_width = BIN_WIDTH,
-  epsilon_step = EPS_STEP, n_bootstrap = N_BOOTSTRAP
+  data = data_out, bin_width = BIN_WIDTH, epsilon_step = EPS_STEP
 )
 lambda_grid <- 10^seq(LAMBDA_MAX, LAMBDA_MIN, length.out = N_LAMBDA)
-tuner$add_lambda(lambda_grid = lambda_grid, to_parallel = FALSE)
+invisible(capture.output(
+  tuner$add_lambda(lambda_grid = lambda_grid, to_parallel = FALSE)
+))
 
 df_w <- tuner$get_lambda_df()   # columns: lambda, width, kindCI
-print(df_w)
 
-p <- ggplot(df_w, aes(x = lambda, y = width)) +
-  geom_line(color = HAL_COL[["cv"]], linewidth = 1) +
-  geom_point(color = HAL_COL[["cv"]], size = 2) +
-  scale_x_log10() +
-  labs(x = expression(lambda~"(log scale)"), y = "Wald CI width") +
-  theme_classic(base_size = 13)
+## ---- degenerate region -----------------------------------------------------
+## At large lambda the HAL density fit collapses and the Wald interval degenerates
+## to *exactly* zero width. Those points are not "very precise" estimates -- they
+## carry no information -- so they are kept in the data but drawn as open symbols,
+## with the connecting line broken across them.
+df_w$degenerate <- df_w$width <= 0
+df_ok  <- df_w[!df_w$degenerate, ]
+df_bad <- df_w[ df_w$degenerate, ]
 
-ggsave("fig2_density_width.png", p, width = 7, height = 5, dpi = 300)
-ggsave("fig2_density_width.eps", p, width = 7, height = 5, device = cairo_ps)
+## ---- plateau + selected lambda ---------------------------------------------
+## Select on the informative points only. The curve has TWO flat regions -- the
+## real plateau at small lambda and the degenerate zero shelf at large lambda --
+## and the plateau finder would happily latch onto the zero shelf if it were fed
+## the full grid.
+lambda_sel <- tuner$select_lambda_pleateau_wald(df_ok)
+plateau_lo <- min(df_ok$lambda)
+
+cat(sprintf("Plateau starts at lambda = %.3g (width = %.3g)\n",
+            lambda_sel, df_ok$width[which.min(abs(df_ok$lambda - lambda_sel))]))
+cat(sprintf("Degenerate (zero-width) for lambda >= %.3g : %d of %d grid points\n",
+            min(df_bad$lambda), nrow(df_bad), nrow(df_w)))
+
+## ---- plot ------------------------------------------------------------------
+## Width is plotted in its raw units, so the y axis keeps R's default scientific
+## labels (0e+00, 1e-04, ...). U is just the tick spacing, and doubles as the unit
+## the text annotations are positioned in.
+U <- 1e-4
+
+p <- ggplot(mapping = aes(x = lambda, y = width)) +
+  ## the plateau: the whole point of the figure
+  annotate("rect", xmin = plateau_lo, xmax = lambda_sel,
+           ymin = -Inf, ymax = Inf, fill = HAL_ACCENT[["band"]]) +
+  annotate("segment", x = lambda_sel, xend = lambda_sel, y = -Inf, yend = Inf,
+           color = HAL_ACCENT[["pick"]], linetype = 2, linewidth = 0.5) +
+  ## the curve runs across the whole grid, including down to the zeros
+  geom_line(data = df_w, color = HAL_COL[["cv"]], linewidth = 0.9) +
+  ## informative points: filled
+  geom_point(data = df_ok, color = HAL_COL[["cv"]], size = 1.9) +
+  ## degenerate (zero-width) points: open circles, so they read as "no information
+  ## here" rather than as an extremely precise interval
+  geom_point(data = df_bad, color = HAL_ACCENT[["dead"]], size = 1.9,
+             shape = 1, stroke = 0.7) +
+  ## labels (annotation heights are given in units of U, so they stay put)
+  annotate("text", x = sqrt(plateau_lo * lambda_sel), y = 0.55 * U,
+           label = "plateau", color = HAL_ACCENT[["band_txt"]],
+           size = 3.4, fontface = 2) +
+  annotate("text", x = lambda_sel, y = 4.45 * U, hjust = -0.12,
+           label = sprintf("selected~lambda == %.1e", lambda_sel),
+           parse = TRUE, color = HAL_ACCENT[["pick"]], size = 3.2) +
+  annotate("text", x = max(df_bad$lambda), y = 0.05 * U, hjust = 2,
+           label = "CI collapses\nto zero width",
+           color = HAL_ACCENT[["dead"]], size = 3.0, lineheight = 0.95) +
+  scale_x_log10(
+    breaks = 10^seq(LAMBDA_MIN, LAMBDA_MAX),
+    labels = parse(text = paste0("10^", seq(LAMBDA_MIN, LAMBDA_MAX)))
+  ) +
+  ## floor sits just below 0 so the zero-width circles are not bisected by the axis
+  scale_y_continuous(limits = c(-0.18 * U, 5 * U), breaks = seq(0, 5 * U, by = U),
+                     expand = c(0, 0)) +
+  labs(x = expression(lambda ~ "(log scale; larger" ~ lambda ~ "= more regularization)"),
+       y = "Wald CI width") +
+  hal_ggtheme()
+
+ggsave("fig2_density_width.png", p, width = FIG_W, height = FIG_H, dpi = FIG_DPI)
+ggsave("fig2_density_width.eps", p, width = FIG_W, height = FIG_H,
+       device = hal_eps_device())
 saveRDS(df_w, "fig2_density_width.rds")
 cat("Figure 2 saved.\n")
+

@@ -20,12 +20,23 @@ source("hal_style.R")     # shared style: HAL_COL/LTY/LWD, hal_* helpers
 ## ---- truth function (smooth, multi-frequency) ----
 truth <- function(x) sin(1.2 * x) + 0.7 * sin(2.7 * x)
 
+## The 0th-order HAL basis is I(x >= knot), with a knot at every observed x.
+## The outermost knots are supported by only a handful of points, so the fitted
+## step function is wildly unstable in the last percentile at each end. That is a
+## boundary artifact of the basis, not a property of HAL worth illustrating here,
+## so the FITTED CURVES are drawn only over the interior TRIM quantile range.
+## The data cloud is still plotted over its full range.
+TRIM <- 0.005   # middle 99% of x (0.5% trimmed from each end)
+
 compute_fig1 <- function(truth, n = 500, xmin = -4, xmax = 4, noise = 0.8,
                          low_mult = 0.15, high_mult = 5, seed = 123) {
   set.seed(seed)
   x  <- runif(n, xmin, xmax)
   y  <- truth(x) + rnorm(n, 0, noise)
-  xg <- seq(xmin, xmax, length.out = 400)
+
+  ## fitted curves live on the interior grid only (see TRIM note above)
+  lim <- unname(quantile(x, c(TRIM, 1 - TRIM)))
+  xg  <- seq(lim[1], lim[2], length.out = 400)
 
   cv     <- fit_hal_cv(build_hal_design_matrix(x), y)
   norms  <- calculate_variation_norms(cv)
@@ -54,16 +65,13 @@ draw_fig1 <- function(d, pts_col = HAL_PTS) {
 
 d <- compute_fig1(truth)
 
-png("fig1_hal.png", width = 1700, height = 1200, res = 230)
+hal_png("fig1_hal.png")
 draw_fig1(d); dev.off()
 
-if (isTRUE(capabilities("cairo"))) {
-  cairo_ps("fig1_hal.eps", width = 7.2, height = 5.1, fallback_resolution = 600)
-  draw_fig1(d)
-} else {
-  setEPS(); postscript("fig1_hal.eps", width = 7.2, height = 5.1)
-  draw_fig1(d, pts_col = HAL_PTS_EPS)
-}
+## EPS: cairo supports alpha, classic postscript does not, so the point cloud
+## falls back to a solid grey when cairo is unavailable.
+has_alpha <- hal_eps("fig1_hal.eps")
+draw_fig1(d, pts_col = if (has_alpha) HAL_PTS else HAL_PTS_EPS)
 dev.off()
 
 cat(sprintf("Figure 1 done. Norms: low=%.1f  CV=%.1f  high=%.1f\n",
