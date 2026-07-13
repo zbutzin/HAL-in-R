@@ -81,10 +81,13 @@ cat(sprintf("Degenerate (zero-width) for lambda >= %.3g : %d of %d grid points\n
             min(df_bad$lambda), nrow(df_bad), nrow(df_w)))
 
 ## ---- plot ------------------------------------------------------------------
-## Width is plotted in its raw units, so the y axis keeps R's default scientific
-## labels (0e+00, 1e-04, ...). U is just the tick spacing, and doubles as the unit
-## the text annotations are positioned in.
-U <- 1e-4
+## U is the y-axis tick spacing, and doubles as the unit the text annotations are
+## positioned in. It is set from the data (rather than a fixed 1e-4) so the figure
+## renders correctly regardless of the CI-width scale the local package versions
+## produce -- some environments give density widths ~1e-2, others ~1e-4. The
+## plateau band, selected-lambda marker, and labels all stay proportional. The
+## y axis keeps R's default scientific labels (e.g. 0e+00, 3e-03, ...).
+U <- max(df_w$width) / 4.45
 
 p <- ggplot(mapping = aes(x = lambda, y = width)) +
   ## the plateau: the whole point of the figure
@@ -115,7 +118,7 @@ p <- ggplot(mapping = aes(x = lambda, y = width)) +
     labels = parse(text = paste0("10^", seq(LAMBDA_MIN, LAMBDA_MAX)))
   ) +
   ## floor sits just below 0 so the zero-width circles are not bisected by the axis
-  scale_y_continuous(limits = c(-0.18 * U, 5 * U), breaks = seq(0, 5 * U, by = U),
+  scale_y_continuous(limits = c(-0.18 * U, 5 * U), labels = scales::label_scientific(),
                      expand = c(0, 0)) +
   labs(x = expression(lambda ~ "(log scale; larger" ~ lambda ~ "= more regularization)"),
        y = "Wald CI width") +
