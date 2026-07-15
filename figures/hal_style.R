@@ -10,11 +10,17 @@ HAL_COL <- c(truth = "grey35", lo = "#d95f02", cv = "#2c7fb8", hi = "#1b9e77")
 HAL_LTY <- c(truth = 2,        lo = 3,         cv = 1,         hi = 4)
 HAL_LWD <- c(truth = 2,        lo = 2.6,       cv = 3.5,       hi = 1.8)
 
-## accents used by Fig 2 (plateau band, selected lambda, degenerate region).
+## accents used by Fig 2 (plateau band, the two lambda markers, degenerate region).
 ## `band` is a SOLID light blue rather than a transparent blue: EPS has no alpha
 ## channel, so an alpha fill would be dropped (or rasterized) on export.
+##
+## lam_plateau / lam_cv mark the two vertical lambda lines. They are soft
+## "macaron" tones (a rose and a lavender), chosen to sit apart from each other
+## and from the blue width curve so the two markers never read as one.
 HAL_ACCENT <- c(band = "#eaf2f9", band_txt = "#2c7fb8",
-                pick = "grey20", dead = "grey55")
+                pick = "grey20", dead = "grey55",
+                lam_plateau = "#d17a95",   # macaron rose      -> plateau lambda
+                lam_cv      = "#8e7cc3")   # macaron lavender   -> CV-selected lambda
 
 ## data-point color. PNG uses semi-transparency; EPS (no alpha) passes a solid grey.
 HAL_PTS  <- adjustcolor("grey55", 0.45)
